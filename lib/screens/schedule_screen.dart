@@ -26,15 +26,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     return endMinutes > startMinutes;
   }
 
-  void _showForm(BuildContext context) {
+  void _showForm(BuildContext context, {AcademicSession? existing}) {
     final formKey = GlobalKey<FormState>();
     String? timeError;
-    final titleController = TextEditingController(text: '');
-    final locationController = TextEditingController(text: '');
-    DateTime selectedDate = DateTime.now();
-    TimeOfDay start = const TimeOfDay(hour: 9, minute: 0);
-    TimeOfDay end = const TimeOfDay(hour: 10, minute: 30);
-    String selectedType = 'Class';
+    final titleController = TextEditingController(text: existing?.title ?? '');
+    final locationController = TextEditingController(
+      text: existing?.location ?? '',
+    );
+    DateTime selectedDate = existing?.date ?? DateTime.now();
+    TimeOfDay start =
+        existing?.startTime ?? const TimeOfDay(hour: 9, minute: 0);
+    TimeOfDay end = existing?.endTime ?? const TimeOfDay(hour: 10, minute: 30);
+    String selectedType = existing?.type ?? 'Class';
 
     showModalBottomSheet(
       context: context,
@@ -53,7 +56,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Schedule Session',
+                  existing == null ? 'Schedule Session' : 'Edit Session',
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -188,10 +191,26 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       final newList = List<AcademicSession>.from(
                         widget.sessions,
                       );
-
-                      newList.add(
-                        AcademicSession(
-                          id: DateTime.now().toString(),
+                      if (existing == null) {
+                        newList.add(
+                          AcademicSession(
+                            id: DateTime.now().toString(),
+                            title: titleController.text.trim(),
+                            date: selectedDate,
+                            startTime: start,
+                            endTime: end,
+                            location: locationController.text.trim().isEmpty
+                                ? null
+                                : locationController.text.trim(),
+                            type: selectedType,
+                          ),
+                        );
+                      } else {
+                        final idx = newList.indexWhere(
+                          (e) => e.id == existing.id,
+                        );
+                        newList[idx] = AcademicSession(
+                          id: existing.id,
                           title: titleController.text.trim(),
                           date: selectedDate,
                           startTime: start,
@@ -200,8 +219,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                               ? null
                               : locationController.text.trim(),
                           type: selectedType,
-                        ),
-                      );
+                          isPresent: existing.isPresent,
+                        );
+                      }
 
                       widget.onUpdate(newList);
                       Navigator.pop(ctx);
