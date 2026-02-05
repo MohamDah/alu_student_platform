@@ -1,4 +1,9 @@
+import 'dart:convert';
+
+import 'package:alu_student_platform/models/academic_session.dart';
+import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'theme/alu_colors.dart';
 
 void main() {
@@ -15,11 +20,20 @@ class StudentApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: ALUColors.navyBlue,
-        scaffoldBackgroundColor: ALUColors.navyBlue,
+        scaffoldBackgroundColor: ALUColors.white,
         useMaterial3: true,
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: ALUColors.white),
-          bodyLarge: TextStyle(color: ALUColors.white),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: ALUColors.navyBlue,
+          primary: ALUColors.navyBlue,
+          secondary: ALUColors.yellow,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: ALUColors.navyBlue,
+          foregroundColor: ALUColors.white,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: ALUColors.yellow,
+          foregroundColor: ALUColors.navyBlue,
         ),
       ),
       home: const MainNavigationScreen(),
@@ -36,13 +50,37 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
+  List<AcademicSession> _sessions = [];
 
-  // These are the 3 placeholder screens for now
-  static const List<Widget> _screens = [
-    Center(child: Text('Dashboard Screen', style: TextStyle(color: Colors.white))),
-    Center(child: Text('Assignments Screen', style: TextStyle(color: Colors.white))),
-    Center(child: Text('Schedule Screen', style: TextStyle(color: Colors.white))),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      final sessionString = prefs.getString('sessions') ?? '[]';
+
+      _sessions = (jsonDecode(sessionString) as List)
+          .map((i) => AcademicSession.fromJson(i))
+          .toList();
+    });
+  }
+
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'sessions',
+      jsonEncode(_sessions.map((e) => e.toJson()).toList()),
+    );
+  }
+
+  void _updateSession(List<AcademicSession> newList) {
+    setState(() => _sessions = newList);
+    _saveData();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -52,12 +90,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('ALU Student Platform', style: TextStyle(color: Colors.white)),
-        backgroundColor: ALUColors.navyBlue,
+    final List<Widget> screens = [
+      Center(
+        child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
       ),
-      body: _screens[_selectedIndex],
+      Center(
+        child: Text(
+          'Assignments Screen',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      ScheduleScreen(sessions: _sessions, onUpdate: _updateSession),
+    ];
+    return Scaffold(
+      body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ALUColors.navyBlue,
         items: const <BottomNavigationBarItem>[
