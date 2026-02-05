@@ -1,9 +1,17 @@
+import 'package:alu_student_platform/models/academic_session.dart';
 import 'package:alu_student_platform/theme/alu_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ScheduleScreen extends StatefulWidget {
-  const ScheduleScreen({super.key});
+  final List<AcademicSession> sessions;
+  final Function(List<AcademicSession>) onUpdate;
+
+  const ScheduleScreen({
+    super.key,
+    required this.sessions,
+    required this.onUpdate,
+  });
 
   @override
   State<ScheduleScreen> createState() => _ScheduleScreenState();
@@ -142,6 +150,35 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                       foregroundColor: ALUColors.white,
                     ),
                     onPressed: () {
+                      if (!(formKey.currentState?.validate() ?? false)) {
+                        return;
+                      }
+
+                      final startMinutes = start.hour * 60 + start.minute;
+                      final endMinutes = end.hour * 60 + end.minute;
+                      if (endMinutes <= startMinutes) {
+                        return;
+                      }
+
+                      final newList = List<AcademicSession>.from(
+                        widget.sessions,
+                      );
+
+                      newList.add(
+                        AcademicSession(
+                          id: DateTime.now().toString(),
+                          title: titleController.text.trim(),
+                          date: selectedDate,
+                          startTime: start,
+                          endTime: end,
+                          location: locationController.text.trim().isEmpty
+                              ? null
+                              : locationController.text.trim(),
+                          type: selectedType,
+                        ),
+                      );
+
+                      widget.onUpdate(newList);
                       Navigator.pop(ctx);
                     },
                     child: const Text('Confirm Schedule'),
@@ -164,6 +201,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final now = DateTime.now();
     final weekStart = _weekStart(now);
     final weekEnd = weekStart.add(const Duration(days: 6));
+
+    List<Widget> items = widget.sessions
+        .map((e) => Text(e.toString()))
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -188,6 +229,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
         backgroundColor: ALUColors.yellow,
         child: const Icon(Icons.calendar_month, color: ALUColors.navyBlue),
       ),
+      body: widget.sessions.isEmpty
+          ? const Center(child: Text('Your schedule is empty.'))
+          : ListView(children: items),
       bottomNavigationBar: _showThisWeek
           ? Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

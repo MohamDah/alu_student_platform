@@ -1,3 +1,4 @@
+import 'package:alu_student_platform/models/academic_session.dart';
 import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'theme/alu_colors.dart';
@@ -46,17 +47,11 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
+  List<AcademicSession> _sessions = [];
 
-  // These are the 3 placeholder screens for now
-  static const List<Widget> _screens = [
-    Center(
-      child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
-    ),
-    Center(
-      child: Text('Assignments Screen', style: TextStyle(color: Colors.white)),
-    ),
-    ScheduleScreen(),
-  ];
+  void _updateSession(List<AcademicSession> newList) {
+    setState(() => _sessions = newList);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -66,8 +61,20 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> screens = [
+      Center(
+        child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
+      ),
+      Center(
+        child: Text(
+          'Assignments Screen',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      ScheduleScreen(sessions: _sessions, onUpdate: _updateSession),
+    ];
     return Scaffold(
-      body: _screens[_selectedIndex],
+      body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ALUColors.navyBlue,
         items: const <BottomNavigationBarItem>[
