@@ -55,7 +55,7 @@ class AssignmentListView extends StatelessWidget {
         final item = filteredList[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.white,
+          color: Colors.navyBlue,
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -75,7 +75,7 @@ class AssignmentListView extends StatelessWidget {
                 item.title,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: item.isCompleted ? Colors.grey : ALUColors.navyBlue,
+                  color: item.isCompleted ? Colors.grey : ALUColors.white,
                   decoration: item.isCompleted
                       ? TextDecoration.lineThrough
                       : null,
@@ -206,10 +206,10 @@ class AssignmentListView extends StatelessWidget {
           "$label ",
           style: const TextStyle(
             fontWeight: FontWeight.bold,
-            color: ALUColors.navyBlue,
+            color: ALUColors.white,
           ),
         ),
-        Text(value, style: const TextStyle(color: Colors.black87)),
+        Text(value, style: const TextStyle(color: Colors.white)),
       ],
     );
   }

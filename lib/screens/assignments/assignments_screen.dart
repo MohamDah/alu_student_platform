@@ -97,7 +97,12 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: ALUColors.navyBlue,
+      appbar: AppBar(
+	title: const Text('Assignments'),
+	backgroundColor: ALUColors.navyBlue,
+	foregroundColor: ALUColors.white,
+      ),
+      backgroundColor: ALUColors.white,
       body: Column(
         children: [
           Container(
