@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:alu_student_platform/models/academic_session.dart';
 import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'theme/alu_colors.dart';
 
 void main() {
@@ -49,8 +52,34 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   List<AcademicSession> _sessions = [];
 
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      final sessionString = prefs.getString('sessions') ?? '[]';
+
+      _sessions = (jsonDecode(sessionString) as List)
+          .map((i) => AcademicSession.fromJson(i))
+          .toList();
+    });
+  }
+
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'sessions',
+      jsonEncode(_sessions.map((e) => e.toJson()).toList()),
+    );
+  }
+
   void _updateSession(List<AcademicSession> newList) {
     setState(() => _sessions = newList);
+    _saveData();
   }
 
   void _onItemTapped(int index) {
