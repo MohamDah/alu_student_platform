@@ -20,8 +20,15 @@ class ScheduleScreen extends StatefulWidget {
 class _ScheduleScreenState extends State<ScheduleScreen> {
   bool _showThisWeek = true;
 
+  bool isValidTimeRange(TimeOfDay start, TimeOfDay end) {
+    final startMinutes = start.hour * 60 + start.minute;
+    final endMinutes = end.hour * 60 + end.minute;
+    return endMinutes > startMinutes;
+  }
+
   void _showForm(BuildContext context) {
     final formKey = GlobalKey<FormState>();
+    String? timeError;
     final titleController = TextEditingController(text: '');
     final locationController = TextEditingController(text: '');
     DateTime selectedDate = DateTime.now();
@@ -118,6 +125,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         if (picked != null) {
                           setModalState(() {
                             start = picked;
+                            timeError = !isValidTimeRange(start, end)
+                                ? 'End time must be after start time.'
+                                : null;
                           });
                         }
                       },
@@ -134,6 +144,9 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         if (picked != null) {
                           setModalState(() {
                             end = picked;
+                            timeError = !isValidTimeRange(start, end)
+                                ? 'End time must be after start time.'
+                                : null;
                           });
                         }
                       },
@@ -141,6 +154,20 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                     ),
                   ],
                 ),
+                if (timeError != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        timeError!,
+                        style: const TextStyle(
+                          color: ALUColors.redRisk,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ),
+                  ),
                 const SizedBox(height: 20),
                 SizedBox(
                   width: double.infinity,
@@ -154,9 +181,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
                         return;
                       }
 
-                      final startMinutes = start.hour * 60 + start.minute;
-                      final endMinutes = end.hour * 60 + end.minute;
-                      if (endMinutes <= startMinutes) {
+                      if (!isValidTimeRange(start, end)) {
                         return;
                       }
 
