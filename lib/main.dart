@@ -1,3 +1,4 @@
+import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'theme/alu_colors.dart';
 
@@ -15,11 +16,20 @@ class StudentApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primaryColor: ALUColors.navyBlue,
-        scaffoldBackgroundColor: ALUColors.navyBlue,
+        scaffoldBackgroundColor: ALUColors.white,
         useMaterial3: true,
-        textTheme: const TextTheme(
-          bodyMedium: TextStyle(color: ALUColors.white),
-          bodyLarge: TextStyle(color: ALUColors.white),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: ALUColors.navyBlue,
+          primary: ALUColors.navyBlue,
+          secondary: ALUColors.yellow,
+        ),
+        appBarTheme: const AppBarTheme(
+          backgroundColor: ALUColors.navyBlue,
+          foregroundColor: ALUColors.white,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: ALUColors.yellow,
+          foregroundColor: ALUColors.navyBlue,
         ),
       ),
       home: const MainNavigationScreen(),
@@ -39,9 +49,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   // These are the 3 placeholder screens for now
   static const List<Widget> _screens = [
-    Center(child: Text('Dashboard Screen', style: TextStyle(color: Colors.white))),
-    Center(child: Text('Assignments Screen', style: TextStyle(color: Colors.white))),
-    Center(child: Text('Schedule Screen', style: TextStyle(color: Colors.white))),
+    Center(
+      child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
+    ),
+    Center(
+      child: Text('Assignments Screen', style: TextStyle(color: Colors.white)),
+    ),
+    ScheduleScreen(),
   ];
 
   void _onItemTapped(int index) {
@@ -53,10 +67,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('ALU Student Platform', style: TextStyle(color: Colors.white)),
-        backgroundColor: ALUColors.navyBlue,
-      ),
       body: _screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ALUColors.navyBlue,
