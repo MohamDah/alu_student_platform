@@ -1,41 +1,34 @@
 import 'dart:convert';
-import '../models/attendance_record.dart';
+import '../models/academic_session.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AttendanceService {
-  static const _key = 'attendance_records';
+  static const _key = 'sessions';
 
-  List<AttendanceRecord> _records = [];
+  List<AcademicSession> _sessionRecords = [];
 
   /// Load attendance records from SharedPreferences
-  Future<void> loadAttendance() async {
+  Future<List<AcademicSession>> loadAttendance() async {
     final prefs = await SharedPreferences.getInstance();
     final raw = prefs.getString(_key) ?? '[]';
 
-    _records = (jsonDecode(raw) as List)
-        .map((e) => AttendanceRecord.fromJson(e))
+    _sessionRecords = (jsonDecode(raw) as List)
+        .map((e) => AcademicSession.fromJson(e))
         .toList();
-  }
 
-  /// Save attendance records to SharedPreferences
-  Future<void> _saveAttendance() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      _key,
-      jsonEncode(_records.map((e) => e.toJson()).toList()),
-    );
+    return _sessionRecords;
   }
 
   // Returns the total number of sessions recorded
   int getTotalSessions() {
-    return _records.length;
+    return _sessionRecords.length;
   }
 
   // Return the total number of sessions attended
   int getPresentSessions() {
     int count = 0;
-    for (var record in _records) {
-      if (record.isPresent) {
+    for (var record in _sessionRecords) {
+      if (record.isPresent == true) {
         count++;
       }
     }
@@ -60,7 +53,7 @@ class AttendanceService {
   }
 
   // Returns a list of all attendance records (history)
-  List<AttendanceRecord> getAttendanceHistory() {
-    return List.from(_records); // return a copy for safety
+  List<AcademicSession> getAttendanceHistory() {
+    return List.from(_sessionRecords); // return a copy for safety
   }
 }
