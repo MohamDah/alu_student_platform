@@ -258,6 +258,10 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     filtered.sort((a, b) {
       final dateCompare = a.date.compareTo(b.date);
       if (dateCompare != 0) return dateCompare;
+
+      final hourCompare = a.startTime.hour.compareTo(b.startTime.hour);
+      if (hourCompare != 0) return hourCompare;
+
       return a.startTime.hour.compareTo(b.startTime.hour);
     });
 
@@ -289,14 +293,18 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           onMarkPresent: () {
             final newList = List<AcademicSession>.from(widget.sessions);
             final idx = newList.indexWhere((e) => e.id == s.id);
-            newList[idx].isPresent = true;
-            widget.onUpdate(newList);
+           if (idx >= 0) {
+              newList[idx].isPresent = true;
+              widget.onUpdate(newList);
+            }
           },
           onMarkAbsent: () {
             final newList = List<AcademicSession>.from(widget.sessions);
             final idx = newList.indexWhere((e) => e.id == s.id);
-            newList[idx].isPresent = false;
-            widget.onUpdate(newList);
+            if (idx >= 0) {
+              newList[idx].isPresent = false;
+              widget.onUpdate(newList);
+            }
           },
         ),
       );
