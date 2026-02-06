@@ -25,4 +25,20 @@ class AttendanceService {
       jsonEncode(_records.map((e) => e.toJson()).toList()),
     );
   }
+
+  // Returns the total number of sessions recorded
+  int getTotalSessions() {
+    return _records.length;
+  }
+
+  // Return the total number of sessions attended
+  int getPresentSessions() {
+    int count = 0;
+    for (var record in _records) {
+      if (record.isPresent) {
+        count++;
+      }
+    }
+    return count;
+  }
 }
