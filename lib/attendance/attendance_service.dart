@@ -41,4 +41,26 @@ class AttendanceService {
     }
     return count;
   }
+
+  // Returns the attendance percentage as a double
+  double getAttendancePercentage() {
+    int total = getTotalSessions();
+    int present = getPresentSessions();
+
+    if (total == 0) {
+      return 100.0; // no sessions yet
+    }
+
+    return (present / total) * 100;
+  }
+
+  // Returns true if attendance is below 75%
+  bool isAttendanceBelowThreshold() {
+    return getAttendancePercentage() < 75.0;
+  }
+
+  // Returns a list of all attendance records (history)
+  List<AttendanceRecord> getAttendanceHistory() {
+    return List.from(_records); // return a copy for safety
+  }
 }
