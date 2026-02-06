@@ -1,5 +1,6 @@
 import 'package:alu_student_platform/models/academic_session.dart';
 import 'package:alu_student_platform/theme/alu_colors.dart';
+import 'package:alu_student_platform/widgets/session_card.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -241,15 +242,73 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
   DateTime _weekStart(DateTime now) =>
       now.subtract(Duration(days: now.weekday - 1));
 
+  bool _isSameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
+
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final weekStart = _weekStart(now);
     final weekEnd = weekStart.add(const Duration(days: 6));
 
-    List<Widget> items = widget.sessions
-        .map((e) => Text(e.toString()))
-        .toList();
+    final filtered = widget.sessions.where((s) {
+      if (!_showThisWeek) return true;
+      return !s.date.isBefore(weekStart) && !s.date.isAfter(weekEnd);
+    }).toList();
+    filtered.sort((a, b) {
+      final dateCompare = a.date.compareTo(b.date);
+      if (dateCompare != 0) return dateCompare;
+
+      final hourCompare = a.startTime.hour.compareTo(b.startTime.hour);
+      if (hourCompare != 0) return hourCompare;
+
+      return a.startTime.hour.compareTo(b.startTime.hour);
+    });
+
+    final items = <Widget>[];
+    DateTime? currentDate;
+    for (final s in filtered) {
+      if (currentDate == null || !_isSameDay(currentDate, s.date)) {
+        currentDate = s.date;
+        items.add(
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 6),
+            child: Text(
+              DateFormat('EEEE, MMM, d').format(s.date),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+        );
+      }
+
+      items.add(
+        SessionCard(
+          session: s,
+          onEdit: () => _showForm(context, existing: s),
+          onDelete: () {
+            final newList = List<AcademicSession>.from(widget.sessions);
+            newList.removeWhere((e) => e.id == s.id);
+            widget.onUpdate(newList);
+          },
+          onMarkPresent: () {
+            final newList = List<AcademicSession>.from(widget.sessions);
+            final idx = newList.indexWhere((e) => e.id == s.id);
+           if (idx >= 0) {
+              newList[idx].isPresent = true;
+              widget.onUpdate(newList);
+            }
+          },
+          onMarkAbsent: () {
+            final newList = List<AcademicSession>.from(widget.sessions);
+            final idx = newList.indexWhere((e) => e.id == s.id);
+            if (idx >= 0) {
+              newList[idx].isPresent = false;
+              widget.onUpdate(newList);
+            }
+          },
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
