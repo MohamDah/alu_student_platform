@@ -8,5 +8,19 @@ class AttendanceRecord {
     required this.date,
     required this.isPresent,
   });
+
+  Map<String, dynamic> toJson() {
+        return {'sessionTitle': sessionTitle,
+        'date': date.toIso8601String(),
+        'isPresent': isPresent,};
+      }
+  
+  factory AttendanceRecord.fromJson(Map<String, dynamic> json) {
+    return AttendanceRecord(
+      sessionTitle: json['sessionTitle'],
+      date: DateTime.parse(json['date']),
+      isPresent: json['isPresent'],
+    );
+  }
 }
 
