@@ -20,8 +20,9 @@ class StudentApp extends StatelessWidget {
       title: 'ALU Student Platform',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
+        primaryColor: ALUColors.navyBlue,
+        scaffoldBackgroundColor: ALUColors.white,
         useMaterial3: true,
-        scaffoldBackgroundColor: ALUColors.navyBlue,
         colorScheme: ColorScheme.fromSeed(
           seedColor: ALUColors.navyBlue,
           primary: ALUColors.navyBlue,
@@ -30,6 +31,10 @@ class StudentApp extends StatelessWidget {
         appBarTheme: const AppBarTheme(
           backgroundColor: ALUColors.navyBlue,
           foregroundColor: ALUColors.white,
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: ALUColors.yellow,
+          foregroundColor: ALUColors.navyBlue,
         ),
       ),
       home: const MainNavigationScreen(),
@@ -77,23 +82,33 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     _saveData();
   }
 
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final screens = [
-      DashboardScreen(sessions: _sessions),
-      const AssignmentsPlaceholder(),
+    final List<Widget> screens = [
+      Center(child: DashboardScreen(sessions: _sessions)),
+      Center(
+        child: Text(
+          'Assignments Screen',
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       ScheduleScreen(sessions: _sessions, onUpdate: _updateSessions),
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text('ALU Student Platform')),
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ALUColors.navyBlue,
         currentIndex: _selectedIndex,
         selectedItemColor: ALUColors.yellow,
         unselectedItemColor: ALUColors.grey,
-        onTap: (i) => setState(() => _selectedIndex = i),
+        onTap: _onItemTapped,
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
@@ -131,82 +146,85 @@ class DashboardScreen extends StatelessWidget {
         .toList();
 
     final upcomingAssignments = 0;
-    final presentCount =
-        sessions.where((s) => s.isPresent == true).length;
-    final attendance =
-        sessions.isEmpty ? 100 : ((presentCount / sessions.length) * 100).round();
+    final presentCount = sessions.where((s) => s.isPresent == true).length;
+    final attendance = sessions.isEmpty
+        ? 100
+        : ((presentCount / sessions.length) * 100).round();
     final atRisk = attendance < 75;
 
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Today: ${DateFormat('EEE, MMM d').format(now)}',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 16),
-          _section('Attendance'),
-          Card(
-            color: atRisk ? ALUColors.redRisk : Colors.green,
-            child: ListTile(
-              title: const Text(
-                'Overall Attendance',
-                style: TextStyle(color: ALUColors.white),
-              ),
-              trailing: Text(
-                '$attendance%',
-                style: const TextStyle(
-                  color: ALUColors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+    return Scaffold(
+      appBar: AppBar(title: const Text('ALU Student Platform')),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Today: ${DateFormat('EEE, MMM d').format(now)}',
+              style: const TextStyle(color: ALUColors.navyBlue),
+            ),
+            const SizedBox(height: 16),
+            _section('Attendance'),
+            Card(
+              color: atRisk ? ALUColors.redRisk : Colors.green,
+              child: ListTile(
+                title: const Text(
+                  'Overall Attendance',
+                  style: TextStyle(color: ALUColors.navyBlue),
+                ),
+                trailing: Text(
+                  '$attendance%',
+                  style: const TextStyle(
+                    color: ALUColors.navyBlue,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          _section("Today's Academic Sessions"),
-          todaySessions.isEmpty
-              ? const Text(
-                  'No sessions today.',
-                  style: TextStyle(color: Colors.white70),
-                )
-              : Column(
-                  children: todaySessions
-                      .map(
-                        (s) => Card(
-                          child: ListTile(
-                            title: Text(s.title),
-                            subtitle: Text(
-                              '${s.startTime.format(context)} - ${s.endTime.format(context)}',
+            const SizedBox(height: 16),
+            _section("Today's Academic Sessions"),
+            todaySessions.isEmpty
+                ? const Text(
+                    'No sessions today.',
+                    style: TextStyle(color: ALUColors.navyBlue),
+                  )
+                : Column(
+                    children: todaySessions
+                        .map(
+                          (s) => Card(
+                            child: ListTile(
+                              title: Text(s.title),
+                              subtitle: Text(
+                                '${s.startTime.format(context)} - ${s.endTime.format(context)}',
+                              ),
                             ),
                           ),
-                        ),
-                      )
-                      .toList(),
-                ),
-          const SizedBox(height: 16),
-          _section('Assignments Due (Next 7 Days)'),
-          Text(
-            '$upcomingAssignments pending',
-            style: const TextStyle(color: Colors.white70),
-          ),
-          const SizedBox(height: 16),
-          _section('Summary'),
-          Card(
-            child: ListTile(
-              title: const Text('Pending Assignments'),
-              trailing: Text(
-                upcomingAssignments.toString(),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
+                        )
+                        .toList(),
+                  ),
+            const SizedBox(height: 16),
+            _section('Assignments Due (Next 7 Days)'),
+            Text(
+              '$upcomingAssignments pending',
+              style: const TextStyle(color: ALUColors.navyBlue),
+            ),
+            const SizedBox(height: 16),
+            _section('Summary'),
+            Card(
+              child: ListTile(
+                title: const Text('Pending Assignments'),
+                trailing: Text(
+                  upcomingAssignments.toString(),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -217,7 +235,7 @@ class DashboardScreen extends StatelessWidget {
       child: Text(
         title,
         style: const TextStyle(
-          color: ALUColors.white,
+          color: ALUColors.navyBlue,
           fontSize: 18,
           fontWeight: FontWeight.bold,
         ),
@@ -234,7 +252,7 @@ class AssignmentsPlaceholder extends StatelessWidget {
     return const Center(
       child: Text(
         'Assignments Screen',
-        style: TextStyle(color: ALUColors.white),
+        style: TextStyle(color: ALUColors.navyBlue),
       ),
     );
   }
