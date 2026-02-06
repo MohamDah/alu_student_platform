@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '/theme/alu_colors.dart';
-import '../../models/assignment_model.dart';
+import '../models/assignment_model.dart';
 
 void main() {
   runApp(CreateAssignment());

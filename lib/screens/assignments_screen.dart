@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '/theme/alu_colors.dart';
-import '../../models/assignment_model.dart';
-import '../../widgets/assignments_list.dart';
-import 'create_assignment.dart';
+import '../models/assignment_model.dart';
+import '../widgets/assignments_list.dart';
+import '../widgets/create_assignment.dart';
 
 void main() {
   runApp(const MaterialApp(home: AssignmentsScreen()));
