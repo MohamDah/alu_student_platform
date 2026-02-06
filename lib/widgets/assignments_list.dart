@@ -55,7 +55,7 @@ class AssignmentListView extends StatelessWidget {
         final item = filteredList[index];
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          color: Colors.navyBlue,
+          color: ALUColors.navyBlue,
           elevation: 2,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -183,7 +183,7 @@ class AssignmentListView extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: _getPriorityColor(priority).withOpacity(0.2),
+        color: _getPriorityColor(priority).withValues(alpha: .2),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(

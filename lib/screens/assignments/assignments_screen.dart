@@ -50,8 +50,10 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
   void _addOrUpdateAssignment(Map<String, dynamic> data) {
     setState(() {
       // CheckING if ID exists
-      final index = _assignments.indexWhere((element) => element.id == data['id']);
-      
+      final index = _assignments.indexWhere(
+        (element) => element.id == data['id'],
+      );
+
       if (index != -1) {
         // UPDATE existing ONE
         _assignments[index] = Assignment.fromMap(data);
@@ -68,7 +70,9 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
       _assignments.removeWhere((item) => item.id == id);
       _saveAssignments();
     });
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Assignment removed")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text("Assignment removed")));
   }
 
   void _toggleComplete(String id) {
@@ -86,7 +90,8 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (context) => CreateAssignmentForm(assignment: assignment), // Pass data to form
+      builder: (context) =>
+          CreateAssignmentForm(assignment: assignment), // Pass data to form
     );
 
     if (result != null) {
@@ -97,10 +102,10 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appbar: AppBar(
-	title: const Text('Assignments'),
-	backgroundColor: ALUColors.navyBlue,
-	foregroundColor: ALUColors.white,
+      appBar: AppBar(
+        title: const Text('Assignments'),
+        backgroundColor: ALUColors.navyBlue,
+        foregroundColor: ALUColors.white,
       ),
       backgroundColor: ALUColors.white,
       body: Column(
@@ -119,7 +124,7 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
               ],
             ),
           ),
-          
+
           if (_tabController.index == 0)
             Padding(
               padding: const EdgeInsets.all(16.0),

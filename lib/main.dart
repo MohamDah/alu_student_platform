@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:alu_student_platform/models/academic_session.dart';
+import 'package:alu_student_platform/screens/assignments/assignments_screen.dart';
 import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -94,12 +95,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
       Center(
         child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
       ),
-      Center(
-        child: Text(
-          'Assignments Screen',
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+      AssignmentsScreen(),
+      // Center(
+      //   child: Text(
+      //     'Assignments Screen',
+      //     style: TextStyle(color: Colors.white),
+      //   ),
+      // ),
       ScheduleScreen(sessions: _sessions, onUpdate: _updateSession),
     ];
     return Scaffold(
