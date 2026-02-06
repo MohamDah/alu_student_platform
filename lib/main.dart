@@ -96,12 +96,6 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
         child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
       ),
       AssignmentsScreen(),
-      // Center(
-      //   child: Text(
-      //     'Assignments Screen',
-      //     style: TextStyle(color: Colors.white),
-      //   ),
-      // ),
       ScheduleScreen(sessions: _sessions, onUpdate: _updateSession),
     ];
     return Scaffold(
