@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '/theme/alu_colors.dart';
 import '../models/assignment_model.dart';
 import '../widgets/assignments_list.dart';
 import '../widgets/create_assignment.dart';
 
-void main() {
-  runApp(const MaterialApp(home: AssignmentsScreen()));
-}
-
 class AssignmentsScreen extends StatefulWidget {
-  const AssignmentsScreen({super.key});
+  final List<Assignment> assignments;
+  final Function(List<Assignment>) onUpdate;
+
+  const AssignmentsScreen({
+    super.key,
+    required this.assignments,
+    required this.onUpdate,
+  });
 
   @override
   State<AssignmentsScreen> createState() => _AssignmentsScreenState();
@@ -19,7 +21,6 @@ class AssignmentsScreen extends StatefulWidget {
 class _AssignmentsScreenState extends State<AssignmentsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<Assignment> _assignments = [];
 
   @override
   void initState() {
@@ -28,61 +29,48 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
     _tabController.addListener(() {
       setState(() {});
     });
-    _loadAssignments();
   }
 
-  Future<void> _loadAssignments() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String? assignmentsString = prefs.getString('assignments_data');
-    if (assignmentsString != null) {
-      setState(() {
-        _assignments = Assignment.decode(assignmentsString);
-      });
-    }
-  }
-
-  Future<void> _saveAssignments() async {
-    final prefs = await SharedPreferences.getInstance();
-    final String encodedData = Assignment.encode(_assignments);
-    await prefs.setString('assignments_data', encodedData);
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   void _addOrUpdateAssignment(Map<String, dynamic> data) {
-    setState(() {
-      // CheckING if ID exists
-      final index = _assignments.indexWhere(
-        (element) => element.id == data['id'],
-      );
+    final newList = List<Assignment>.from(widget.assignments);
+    // Checking if ID exists
+    final index = newList.indexWhere((element) => element.id == data['id']);
 
-      if (index != -1) {
-        // UPDATE existing ONE
-        _assignments[index] = Assignment.fromMap(data);
-      } else {
-        // ADD new assignment
-        _assignments.add(Assignment.fromMap(data));
-      }
-      _saveAssignments();
-    });
+    if (index != -1) {
+      // UPDATE existing ONE
+      newList[index] = Assignment.fromJson(data);
+    } else {
+      // ADD new assignment
+      newList.add(Assignment.fromJson(data));
+    }
+
+    widget.onUpdate(newList);
   }
 
   void _deleteAssignment(String id) {
-    setState(() {
-      _assignments.removeWhere((item) => item.id == id);
-      _saveAssignments();
-    });
+    final newList = List<Assignment>.from(widget.assignments);
+    newList.removeWhere((item) => item.id == id);
+
+    widget.onUpdate(newList);
+
     ScaffoldMessenger.of(
       context,
     ).showSnackBar(const SnackBar(content: Text("Assignment removed")));
   }
 
   void _toggleComplete(String id) {
-    setState(() {
-      final index = _assignments.indexWhere((item) => item.id == id);
-      if (index != -1) {
-        _assignments[index].isCompleted = !_assignments[index].isCompleted;
-        _saveAssignments();
-      }
-    });
+    final newList = List<Assignment>.from(widget.assignments);
+    final index = newList.indexWhere((item) => item.id == id);
+    if (index != -1) {
+      newList[index].isCompleted = !newList[index].isCompleted;
+    }
+    widget.onUpdate(newList);
   }
 
   void _editAssignment(Assignment assignment) async {
@@ -165,21 +153,21 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
               controller: _tabController,
               children: [
                 AssignmentListView(
-                  assignments: _assignments,
+                  assignments: widget.assignments,
                   filterType: 'All',
                   onDelete: _deleteAssignment,
                   onToggleComplete: _toggleComplete,
                   onEdit: _editAssignment, // Pass the function!
                 ),
                 AssignmentListView(
-                  assignments: _assignments,
+                  assignments: widget.assignments,
                   filterType: 'Formative',
                   onDelete: _deleteAssignment,
                   onToggleComplete: _toggleComplete,
                   onEdit: _editAssignment,
                 ),
                 AssignmentListView(
-                  assignments: _assignments,
+                  assignments: widget.assignments,
                   filterType: 'Summative',
                   onDelete: _deleteAssignment,
                   onToggleComplete: _toggleComplete,

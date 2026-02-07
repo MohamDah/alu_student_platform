@@ -6,7 +6,7 @@ class Assignment {
   String courseName;
   DateTime dueDate;
   String priority; // 'High', 'Medium', or 'Low'
-  String type;     // 'Formative' or 'Summative'
+  String type; // 'Formative' or 'Summative'
   bool isCompleted;
 
   Assignment({
@@ -19,38 +19,35 @@ class Assignment {
     this.isCompleted = false,
   });
 
-  // Convert an Assignment to a Map (for saving)
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'title': title,
-      'courseName': courseName,
-      'dueDate': dueDate.toIso8601String(),
-      'priority': priority,
-      'type': type,
-      'isCompleted': isCompleted,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'title': title,
+    'courseName': courseName,
+    'dueDate': dueDate.toIso8601String(),
+    'priority': priority,
+    'type': type,
+    'isCompleted': isCompleted,
+  };
 
-  factory Assignment.fromMap(Map<String, dynamic> map) {
+  factory Assignment.fromJson(Map<String, dynamic> json) {
     return Assignment(
-      id: map['id'],
-      title: map['title'],
-      courseName: map['courseName'],
-      dueDate: DateTime.parse(map['dueDate']),
-      priority: map['priority'],
-      type: map['type'],
-      isCompleted: map['isCompleted'] ?? false,
+      id: json['id'],
+      title: json['title'],
+      courseName: json['courseName'],
+      dueDate: DateTime.parse(json['dueDate']),
+      priority: json['priority'],
+      type: json['type'],
+      isCompleted: json['isCompleted'] ?? false,
     );
   }
 
-  // encode or decode list
-  static String encode(List<Assignment> assignments) => json.encode(
-        assignments.map<Map<String, dynamic>>((a) => a.toMap()).toList(),
-      );
+  // Encode or decode list of assignments
+  static String encode(List<Assignment> assignments) => jsonEncode(
+    assignments.map<Map<String, dynamic>>((a) => a.toJson()).toList(),
+  );
 
   static List<Assignment> decode(String assignments) =>
-      (json.decode(assignments) as List<dynamic>)
-          .map<Assignment>((item) => Assignment.fromMap(item))
+      (jsonDecode(assignments) as List<dynamic>)
+          .map<Assignment>((item) => Assignment.fromJson(item))
           .toList();
 }
