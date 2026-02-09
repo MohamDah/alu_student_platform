@@ -25,14 +25,14 @@ class StudentApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: ALUColors.navyBlue,
           primary: ALUColors.navyBlue,
-          secondary: ALUColors.yellow,
+          secondary: ALUColors.red,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: ALUColors.navyBlue,
           foregroundColor: ALUColors.white,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: ALUColors.yellow,
+          backgroundColor: ALUColors.red,
           foregroundColor: ALUColors.navyBlue,
         ),
       ),
@@ -132,7 +132,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: ALUColors.yellow,
+        selectedItemColor: ALUColors.white,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),

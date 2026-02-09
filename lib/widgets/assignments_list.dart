@@ -170,7 +170,7 @@ class AssignmentListView extends StatelessWidget {
       case 'High':
         return ALUColors.redRisk;
       case 'Medium':
-        return ALUColors.yellow;
+        return ALUColors.red;
       case 'Low':
         return Colors.green;
       default:
@@ -189,7 +189,7 @@ class AssignmentListView extends StatelessWidget {
       child: Text(
         priority,
         style: TextStyle(
-          color: _getPriorityColor(priority) == ALUColors.yellow
+          color: _getPriorityColor(priority) == ALUColors.red
               ? Colors.orange[800]
               : _getPriorityColor(priority),
           fontWeight: FontWeight.bold,

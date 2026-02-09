@@ -321,7 +321,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
             child: Text(
               _showThisWeek ? 'Show All' : 'This Week',
               style: const TextStyle(
-                color: ALUColors.yellow,
+                color: ALUColors.red,
                 fontWeight: FontWeight.bold,
               ),
             ),
@@ -330,8 +330,8 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showForm(context),
-        backgroundColor: ALUColors.yellow,
-        child: const Icon(Icons.calendar_month, color: ALUColors.navyBlue),
+        backgroundColor: ALUColors.red,
+        child: const Icon(Icons.calendar_month, color: ALUColors.white),
       ),
       body: widget.sessions.isEmpty
           ? const Center(child: Text('Your schedule is empty.'))

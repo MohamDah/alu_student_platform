@@ -132,14 +132,14 @@ class _AssignmentsScreenState extends State<AssignmentsScreen>
                   height: 50,
                   width: double.infinity,
                   decoration: BoxDecoration(
-                    color: ALUColors.yellow,
+                    color: ALUColors.red,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   alignment: Alignment.center,
                   child: const Text(
                     "Create Assignment",
                     style: TextStyle(
-                      color: ALUColors.navyBlue,
+                      color: ALUColors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
