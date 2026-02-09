@@ -105,7 +105,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      HomeDashboard(sessions: _sessions),
+      HomeDashboard(sessions: _sessions, assignments: _assignments),
       AssignmentsScreen(
         assignments: _assignments,
         onUpdate: _updateAssignment,
@@ -144,8 +144,13 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
 class HomeDashboard extends StatelessWidget {
   final List<AcademicSession> sessions;
+  final List<Assignment> assignments;
 
-  const HomeDashboard({super.key, required this.sessions});
+  const HomeDashboard({
+    super.key,
+    required this.sessions,
+    required this.assignments,
+  });
 
   DateTime get today => DateTime.now();
 
@@ -172,9 +177,25 @@ class HomeDashboard extends StatelessWidget {
     return (attended / total) * 100;
   }
 
+  List<Assignment> getUpcomingAssignments() {
+    final sevenDaysFromNow = today.add(const Duration(days: 7));
+    return assignments
+        .where((a) =>
+            !a.isCompleted &&
+            a.dueDate.isAfter(today.subtract(const Duration(days: 1))) &&
+            a.dueDate.isBefore(sevenDaysFromNow.add(const Duration(days: 1))))
+        .toList()
+      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
+  }
+
+  int get pendingAssignmentsCount {
+    return assignments.where((a) => !a.isCompleted).length;
+  }
+
   @override
   Widget build(BuildContext context) {
     final attendance = attendancePercentage;
+    final upcomingAssignments = getUpcomingAssignments();
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
@@ -217,6 +238,64 @@ class HomeDashboard extends StatelessWidget {
 
             const SizedBox(height: 20),
 
+            // Pending assignments count
+            Card(
+              color: pendingAssignmentsCount > 0
+                  ? Colors.orange.shade100
+                  : Colors.blue.shade100,
+              child: ListTile(
+                leading: Icon(
+                  Icons.assignment_late,
+                  color: pendingAssignmentsCount > 0
+                      ? Colors.orange
+                      : Colors.blue,
+                ),
+                title: Text("Pending Assignments: $pendingAssignmentsCount"),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Upcoming Assignments (Next 7 Days)
+            Text(
+              "Assignments Due in Next 7 Days",
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+
+            upcomingAssignments.isEmpty
+                ? const Text("No assignments due in the next 7 days.")
+                : Column(
+                    children: upcomingAssignments.map((a) {
+                      final todayMidnight = DateTime(today.year, today.month, today.day);
+                      final dueDateMidnight = DateTime(a.dueDate.year, a.dueDate.month, a.dueDate.day);
+                      final daysUntilDue = dueDateMidnight.difference(todayMidnight).inDays;
+                      return Card(
+                        color: daysUntilDue <= 2 ? Colors.red.shade50 : null,
+                        child: ListTile(
+                          title: Text(a.title),
+                          subtitle: Text(
+                            "${a.courseName} - Due: ${a.dueDate.day}/${a.dueDate.month}/${a.dueDate.year} - ${a.priority}",
+                          ),
+                          trailing: Text(
+                            daysUntilDue == 0
+                                ? "Due Today"
+                                : daysUntilDue == 1
+                                    ? "Due Tomorrow"
+                                    : "In $daysUntilDue days",
+                            style: TextStyle(
+                              color: daysUntilDue <= 2 ? Colors.red : null,
+                              fontWeight:
+                                  daysUntilDue <= 2 ? FontWeight.bold : null,
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+
+            const SizedBox(height: 20),
+
             // Today's Sessions
             Text(
               "Today's Sessions",
@@ -237,7 +316,14 @@ class HomeDashboard extends StatelessWidget {
                           trailing: Icon(
                             s.isPresent == true
                                 ? Icons.check_circle
-                                : Icons.cancel,
+                                : s.isPresent == false
+                                    ? Icons.cancel
+                                    : Icons.help_outline,
+                            color: s.isPresent == true
+                                ? Colors.green
+                                : s.isPresent == false
+                                    ? Colors.red
+                                    : Colors.grey,
                           ),
                         ),
                       );
