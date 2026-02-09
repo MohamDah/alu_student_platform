@@ -250,10 +250,16 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
     final now = DateTime.now();
     final weekStart = _weekStart(now);
     final weekEnd = weekStart.add(const Duration(days: 6));
+    
+    // Reset to midnight for accurate date comparison
+    final weekStartMidnight = DateTime(weekStart.year, weekStart.month, weekStart.day);
+    final weekEndMidnight = DateTime(weekEnd.year, weekEnd.month, weekEnd.day, 23, 59, 59);
 
     final filtered = widget.sessions.where((s) {
       if (!_showThisWeek) return true;
-      return !s.date.isBefore(weekStart) && !s.date.isAfter(weekEnd);
+      final sessionDateMidnight = DateTime(s.date.year, s.date.month, s.date.day);
+      return !sessionDateMidnight.isBefore(weekStartMidnight) && 
+             !sessionDateMidnight.isAfter(weekEndMidnight);
     }).toList();
     filtered.sort((a, b) {
       final dateCompare = a.date.compareTo(b.date);
