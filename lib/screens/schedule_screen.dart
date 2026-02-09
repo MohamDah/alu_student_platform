@@ -293,7 +293,7 @@ class _ScheduleScreenState extends State<ScheduleScreen> {
           onMarkPresent: () {
             final newList = List<AcademicSession>.from(widget.sessions);
             final idx = newList.indexWhere((e) => e.id == s.id);
-           if (idx >= 0) {
+            if (idx >= 0) {
               newList[idx].isPresent = true;
               widget.onUpdate(newList);
             }

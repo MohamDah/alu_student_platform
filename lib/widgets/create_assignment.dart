@@ -2,48 +2,6 @@ import 'package:flutter/material.dart';
 import '/theme/alu_colors.dart';
 import '../models/assignment_model.dart';
 
-void main() {
-  runApp(CreateAssignment());
-}
-
-class CreateAssignment extends StatelessWidget {
-  const CreateAssignment({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: InkWell(
-        onTap: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            backgroundColor: Colors.transparent,
-            builder: (context) => const CreateAssignmentForm(),
-          );
-        },
-        child: Container(
-          height: 50,
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: ALUColors.yellow,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          alignment: Alignment.center,
-          child: const Text(
-            "Create Assignment",
-            style: TextStyle(
-              color: ALUColors.navyBlue,
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 // Form that slides up when "Create Assignment" button is clicked
 
 class CreateAssignmentForm extends StatefulWidget {
@@ -297,13 +255,16 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
 
                         // Create the new assignment object
                         final newAssignment = {
-                          'id': DateTime.now().toString(),
+                          'id':
+                              widget.assignment?.id ??
+                              DateTime.now().toString(),
                           'title': _titleController.text,
                           'courseName': _courseController.text,
                           'dueDate': _selectedDate!.toIso8601String(),
                           'priority': _priority,
                           'type': _assignmentType,
-                          'isCompleted': widget.assignment?.isCompleted ?? false,
+                          'isCompleted':
+                              widget.assignment?.isCompleted ?? false,
                         };
                         Navigator.pop(context, newAssignment);
                       },
@@ -315,7 +276,9 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
                         ),
                       ),
                       child: Text(
-                        widget.assignment == null ? "Create Task" : "Save Changes",
+                        widget.assignment == null
+                            ? "Create Task"
+                            : "Save Changes",
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
@@ -392,4 +355,3 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
     );
   }
 }
-

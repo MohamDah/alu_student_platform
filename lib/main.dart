@@ -1,6 +1,5 @@
-import 'dart:convert';
-
 import 'package:alu_student_platform/models/academic_session.dart';
+import 'package:alu_student_platform/models/assignment_model.dart';
 import 'package:alu_student_platform/screens/assignments_screen.dart';
 import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
@@ -52,6 +51,7 @@ class MainNavigationScreen extends StatefulWidget {
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _selectedIndex = 0;
   List<AcademicSession> _sessions = [];
+  List<Assignment> _assignments = [];
 
   @override
   void initState() {
@@ -62,24 +62,40 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Future<void> _loadData() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
+      // Load sessions
       final sessionString = prefs.getString('sessions') ?? '[]';
-      _sessions = (jsonDecode(sessionString) as List)
-          .map((i) => AcademicSession.fromJson(i))
-          .toList();
+      _sessions = AcademicSession.decode(sessionString);
+
+      // Load assignments
+      final assignmentsString = prefs.getString('assignments') ?? '[]';
+      _assignments = Assignment.decode(assignmentsString);
     });
   }
 
-  Future<void> _saveData() async {
+  Future<void> _saveSessionData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
       'sessions',
-      jsonEncode(_sessions.map((e) => e.toJson()).toList()),
+      AcademicSession.encode(_sessions)
     );
   }
 
   void _updateSession(List<AcademicSession> newList) {
     setState(() => _sessions = newList);
-    _saveData();
+    _saveSessionData();
+  }
+
+  Future<void> _saveAssignmentData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      'assignments',
+      Assignment.encode(_assignments),
+    );
+  }
+
+  void _updateAssignment(List<Assignment> newList) {
+    setState(() => _assignments = newList);
+    _saveAssignmentData();
   }
 
   void _onItemTapped(int index) {
@@ -90,7 +106,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       HomeDashboard(sessions: _sessions),
-      const AssignmentsScreen(),
+      AssignmentsScreen(
+        assignments: _assignments,
+        onUpdate: _updateAssignment,
+      ),
       ScheduleScreen(sessions: _sessions, onUpdate: _updateSession),
     ];
 

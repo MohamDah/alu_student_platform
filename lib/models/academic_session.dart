@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
 
 class AcademicSession {
   String id;
@@ -52,4 +53,14 @@ class AcademicSession {
       isPresent: json['isPresent'],
     );
   }
+
+  // Encode or decode list of academic sessions
+  static String encode(List<AcademicSession> sessions) => jsonEncode(
+    sessions.map<Map<String, dynamic>>((a) => a.toJson()).toList(),
+  );
+
+  static List<AcademicSession> decode(String sessions) =>
+      (jsonDecode(sessions) as List<dynamic>)
+          .map<AcademicSession>((item) => AcademicSession.fromJson(item))
+          .toList();
 }
