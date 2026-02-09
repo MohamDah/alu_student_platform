@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:alu_student_platform/models/academic_session.dart';
-import 'package:alu_student_platform/screens/assignments/assignments_screen.dart';
+import 'package:alu_student_platform/screens/assignments_screen.dart';
 import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
