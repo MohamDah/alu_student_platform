@@ -1,6 +1,7 @@
 import 'package:alu_student_platform/models/academic_session.dart';
 import 'package:alu_student_platform/models/assignment_model.dart';
 import 'package:alu_student_platform/screens/assignments_screen.dart';
+import 'package:alu_student_platform/screens/dashboard_screen.dart';
 import 'package:alu_student_platform/screens/schedule_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -25,14 +26,14 @@ class StudentApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(
           seedColor: ALUColors.navyBlue,
           primary: ALUColors.navyBlue,
-          secondary: ALUColors.yellow,
+          secondary: ALUColors.red,
         ),
         appBarTheme: const AppBarTheme(
           backgroundColor: ALUColors.navyBlue,
           foregroundColor: ALUColors.white,
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          backgroundColor: ALUColors.yellow,
+          backgroundColor: ALUColors.red,
           foregroundColor: ALUColors.navyBlue,
         ),
       ),
@@ -99,28 +100,25 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    setState(() => _selectedIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
-      Center(
-        child: Text('Dashboard Screen', style: TextStyle(color: Colors.white)),
-      ),
+      DashboardScreen(sessions: _sessions, assignments: _assignments),
       AssignmentsScreen(
         assignments: _assignments,
         onUpdate: _updateAssignment,
       ),
       ScheduleScreen(sessions: _sessions, onUpdate: _updateSession),
     ];
+
     return Scaffold(
       body: screens[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         backgroundColor: ALUColors.navyBlue,
-        items: const <BottomNavigationBarItem>[
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.dashboard),
             label: 'Dashboard',
@@ -135,7 +133,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
           ),
         ],
         currentIndex: _selectedIndex,
-        selectedItemColor: ALUColors.yellow,
+        selectedItemColor: ALUColors.white,
         unselectedItemColor: Colors.grey,
         onTap: _onItemTapped,
       ),

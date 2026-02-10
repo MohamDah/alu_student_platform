@@ -18,12 +18,13 @@ class CreateAssignmentForm extends StatefulWidget {
 
 class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
   // Controllers for a form
-
+  final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _courseController = TextEditingController();
   DateTime? _selectedDate;
   String _priority = 'Medium'; // Default value
   String _assignmentType = 'Formative'; // Default value
+  bool _dateError = false;
 
   @override
   void initState() {
@@ -57,8 +58,54 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
       },
     );
     if (picked != null) {
-      setState(() => _selectedDate = picked);
+      setState(() {
+        _selectedDate = picked;
+        _dateError = false;
+      });
     }
+  }
+
+  String? _validateTitle(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Assignment title is required';
+    }
+    if (value.trim().length < 3) {
+      return 'Title must be at least 3 characters';
+    }
+    if (value.trim().length > 100) {
+      return 'Title must be less than 100 characters';
+    }
+    return null;
+  }
+
+  String? _validateCourse(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Course name is required';
+    }
+    if (value.trim().length < 3) {
+      return 'Course name must be at least 3 characters';
+    }
+    if (value.trim().length > 80) {
+      return 'Course name must be less than 80 characters';
+    }
+    return null;
+  }
+
+  bool _validateForm() {
+    bool isValid = true;
+    
+    // Validate form fields
+    if (!_formKey.currentState!.validate()) {
+      isValid = false;
+    }
+    
+    // Validate date
+    if (_selectedDate == null) {
+      setState(() => _dateError = true);
+      isValid = false;
+    }
+    
+    return isValid;
   }
 
   @override
@@ -77,215 +124,238 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
         padding: const EdgeInsets.all(24.0),
         child: SingleChildScrollView(
           // Allows scrolling on small screens
-          child: Column(
-            mainAxisSize: MainAxisSize.min, // Wrap content height
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  margin: const EdgeInsets.only(bottom: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.grey[300],
-                    borderRadius: BorderRadius.circular(2),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Wrap content height
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              Text(
-                widget.assignment == null
-                    ? "Add New Assignment"
-                    : "Edit Assignment",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: ALUColors.navyBlue,
+                Text(
+                  widget.assignment == null
+                      ? "Add New Assignment"
+                      : "Edit Assignment",
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: ALUColors.navyBlue,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
+                const SizedBox(height: 20),
 
-              // Assignment title input
-              _buildLabel("Assignment Title"),
-              TextField(
-                controller: _titleController,
-                style: const TextStyle(color: ALUColors.navyBlue),
-                decoration: _inputDecoration("e.g. User Research and Design"),
-              ),
-              const SizedBox(height: 16),
-
-              // // Course name input
-              _buildLabel("Course Name"),
-              TextField(
-                controller: _courseController,
-                style: const TextStyle(color: ALUColors.navyBlue),
-                decoration: _inputDecoration(
-                  "e.g. Mobile Application Development",
+                // Assignment title input
+                _buildLabel("Assignment Title"),
+                TextFormField(
+                  controller: _titleController,
+                  style: const TextStyle(color: ALUColors.navyBlue),
+                  decoration: _inputDecoration("e.g. User Research and Design"),
+                  validator: _validateTitle,
+                  textCapitalization: TextCapitalization.sentences,
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-              // Due Date & Priority Row inputs
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel("Due Date"),
-                        InkWell(
-                          onTap: _pickDate,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 14,
+                // // Course name input
+                _buildLabel("Course Name"),
+                TextFormField(
+                  controller: _courseController,
+                  style: const TextStyle(color: ALUColors.navyBlue),
+                  decoration: _inputDecoration(
+                    "e.g. Mobile Application Development",
+                  ),
+                  validator: _validateCourse,
+                  textCapitalization: TextCapitalization.words,
+                ),
+                const SizedBox(height: 16),
+
+                // Due Date & Priority Row inputs
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLabel("Due Date"),
+                          InkWell(
+                            onTap: _pickDate,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 14,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: _dateError
+                                      ? Colors.red
+                                      : Colors.grey.shade400,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    size: 16,
+                                    color: _dateError
+                                        ? Colors.red
+                                        : ALUColors.navyBlue,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    _selectedDate == null
+                                        ? "Select Date"
+                                        : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
+                                    style: TextStyle(
+                                      color: _selectedDate == null
+                                          ? Colors.grey
+                                          : ALUColors.navyBlue,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
+                          ),
+                          if (_dateError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 8, left: 12),
+                              child: Text(
+                                'Due date is required',
+                                style: TextStyle(
+                                  color: Colors.red[700],
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLabel("Priority"),
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             decoration: BoxDecoration(
                               border: Border.all(color: Colors.grey.shade400),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.calendar_today,
-                                  size: 16,
+                            child: DropdownButtonHideUnderline(
+                              child: DropdownButton<String>(
+                                value: _priority,
+                                isExpanded: true,
+                                icon: const Icon(
+                                  Icons.arrow_drop_down,
                                   color: ALUColors.navyBlue,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _selectedDate == null
-                                      ? "Select Date"
-                                      : "${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year}",
-                                  style: TextStyle(
-                                    color: _selectedDate == null
-                                        ? Colors.grey
-                                        : ALUColors.navyBlue,
-                                  ),
-                                ),
-                              ],
+                                items: ['High', 'Medium', 'Low'].map((
+                                  String value,
+                                ) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                                onChanged: (val) =>
+                                    setState(() => _priority = val!),
+                              ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildLabel("Priority"),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey.shade400),
+                  ],
+                ),
+                const SizedBox(height: 16),
+
+                // Assignment Type (Formative or Summative) input
+                _buildLabel("Assignment Type"),
+                Row(
+                  children: [
+                    _buildTypeChip("Formative"),
+                    const SizedBox(width: 12),
+                    _buildTypeChip("Summative"),
+                  ],
+                ),
+                const SizedBox(height: 30),
+
+                // Cancel or Create task buttons in row format
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () {
+                          Navigator.pop(context); // Close the modal
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: ALUColors.navyBlue,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(color: ALUColors.navyBlue),
+                          shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: DropdownButtonHideUnderline(
-                            child: DropdownButton<String>(
-                              value: _priority,
-                              isExpanded: true,
-                              icon: const Icon(
-                                Icons.arrow_drop_down,
-                                color: ALUColors.navyBlue,
+                        ),
+                        child: const Text("Cancel"),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (!_validateForm()) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Please fix all errors and fill all required fields"),
+                                backgroundColor: Colors.red,
                               ),
-                              items: ['High', 'Medium', 'Low'].map((
-                                String value,
-                              ) {
-                                return DropdownMenuItem<String>(
-                                  value: value,
-                                  child: Text(value),
-                                );
-                              }).toList(),
-                              onChanged: (val) =>
-                                  setState(() => _priority = val!),
-                            ),
+                            );
+                            return;
+                          }
+
+                          // Create the new assignment object
+                          final newAssignment = {
+                            'id':
+                                widget.assignment?.id ??
+                                DateTime.now().toString(),
+                            'title': _titleController.text.trim(),
+                            'courseName': _courseController.text.trim(),
+                            'dueDate': _selectedDate!.toIso8601String(),
+                            'priority': _priority,
+                            'type': _assignmentType,
+                            'isCompleted':
+                                widget.assignment?.isCompleted ?? false,
+                          };
+                          Navigator.pop(context, newAssignment);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: ALUColors.navyBlue,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-
-              // Assignment Type (Formative or Summative) input
-              _buildLabel("Assignment Type"),
-              Row(
-                children: [
-                  _buildTypeChip("Formative"),
-                  const SizedBox(width: 12),
-                  _buildTypeChip("Summative"),
-                ],
-              ),
-              const SizedBox(height: 30),
-
-              // Cancel or Create task buttons in row format
-              Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () {
-                        Navigator.pop(context); // Close the modal
-                      },
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: ALUColors.navyBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        side: const BorderSide(color: ALUColors.navyBlue),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+                        child: Text(
+                          widget.assignment == null
+                              ? "Create Task"
+                              : "Save Changes",
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
-                      child: const Text("Cancel"),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_titleController.text.isEmpty ||
-                            _courseController.text.isEmpty ||
-                            _selectedDate == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Please fill all required fields"),
-                            ),
-                          );
-                          return;
-                        }
-
-                        // Create the new assignment object
-                        final newAssignment = {
-                          'id':
-                              widget.assignment?.id ??
-                              DateTime.now().toString(),
-                          'title': _titleController.text,
-                          'courseName': _courseController.text,
-                          'dueDate': _selectedDate!.toIso8601String(),
-                          'priority': _priority,
-                          'type': _assignmentType,
-                          'isCompleted':
-                              widget.assignment?.isCompleted ?? false,
-                        };
-                        Navigator.pop(context, newAssignment);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: ALUColors.navyBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      child: Text(
-                        widget.assignment == null
-                            ? "Create Task"
-                            : "Save Changes",
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -323,6 +393,14 @@ class _CreateAssignmentFormState extends State<CreateAssignmentForm> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: const BorderSide(color: ALUColors.navyBlue, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 2),
       ),
     );
   }
