@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+/// Represents a single academic assignment.
 class Assignment {
   String id;
   String title;
@@ -46,6 +47,7 @@ class Assignment {
     assignments.map<Map<String, dynamic>>((a) => a.toJson()).toList(),
   );
 
+  /// Decodes a JSON string into a list of [Assignment] objects.
   static List<Assignment> decode(String assignments) =>
       (jsonDecode(assignments) as List<dynamic>)
           .map<Assignment>((item) => Assignment.fromJson(item))
