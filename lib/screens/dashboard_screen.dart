@@ -1,6 +1,6 @@
-
 import 'package:alu_student_platform/models/academic_session.dart';
 import 'package:alu_student_platform/models/assignment_model.dart';
+import 'package:alu_student_platform/helpers/dashboard_helper.dart';
 import 'package:flutter/material.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -13,50 +13,14 @@ class DashboardScreen extends StatelessWidget {
     required this.assignments,
   });
 
-  DateTime get today => DateTime.now();
-
-  int get academicWeek {
-    final semesterStart = DateTime(today.year, 1, 15);
-    return ((today.difference(semesterStart).inDays) ~/ 7) + 1;
-  }
-
-  List<AcademicSession> get todaySessions {
-    return sessions
-        .where(
-          (s) =>
-              s.date.year == today.year &&
-              s.date.month == today.month &&
-              s.date.day == today.day,
-        )
-        .toList();
-  }
-
-  double get attendancePercentage {
-    final attended = sessions.where((s) => s.isPresent == true).length;
-    final total = sessions.where((s) => s.isPresent != null).length;
-    if (total == 0) return 100;
-    return (attended / total) * 100;
-  }
-
-  List<Assignment> getUpcomingAssignments() {
-    final sevenDaysFromNow = today.add(const Duration(days: 7));
-    return assignments
-        .where((a) =>
-            !a.isCompleted &&
-            a.dueDate.isAfter(today.subtract(const Duration(days: 1))) &&
-            a.dueDate.isBefore(sevenDaysFromNow.add(const Duration(days: 1))))
-        .toList()
-      ..sort((a, b) => a.dueDate.compareTo(b.dueDate));
-  }
-
-  int get pendingAssignmentsCount {
-    return assignments.where((a) => !a.isCompleted).length;
-  }
-
   @override
   Widget build(BuildContext context) {
-    final attendance = attendancePercentage;
-    final upcomingAssignments = getUpcomingAssignments();
+    final helper = DashboardHelper(
+      sessions: sessions,
+      assignments: assignments,
+    );
+    final attendance = helper.attendancePercentage;
+    final upcomingAssignments = helper.upcomingAssignments;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),
@@ -67,11 +31,11 @@ class DashboardScreen extends StatelessWidget {
           children: [
             // Date & Academic Week
             Text(
-              "Today: ${today.day}/${today.month}/${today.year}",
+              "Today: ${helper.today.day}/${helper.today.month}/${helper.today.year}",
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text(
-              "Academic Week $academicWeek",
+              "Academic Week ${helper.academicWeek}",
               style: Theme.of(context).textTheme.bodyMedium,
             ),
 
@@ -101,17 +65,17 @@ class DashboardScreen extends StatelessWidget {
 
             // Pending assignments count
             Card(
-              color: pendingAssignmentsCount > 0
+              color: helper.pendingAssignmentsCount > 0
                   ? Colors.orange.shade100
                   : Colors.blue.shade100,
               child: ListTile(
                 leading: Icon(
                   Icons.assignment_late,
-                  color: pendingAssignmentsCount > 0
+                  color: helper.pendingAssignmentsCount > 0
                       ? Colors.orange
                       : Colors.blue,
                 ),
-                title: Text("Pending Assignments: $pendingAssignmentsCount"),
+                title: Text("Pending Assignments: ${helper.pendingAssignmentsCount}"),
               ),
             ),
 
@@ -128,7 +92,7 @@ class DashboardScreen extends StatelessWidget {
                 ? const Text("No assignments due in the next 7 days.")
                 : Column(
                     children: upcomingAssignments.map((a) {
-                      final todayMidnight = DateTime(today.year, today.month, today.day);
+                      final todayMidnight = DateTime(helper.today.year, helper.today.month, helper.today.day);
                       final dueDateMidnight = DateTime(a.dueDate.year, a.dueDate.month, a.dueDate.day);
                       final daysUntilDue = dueDateMidnight.difference(todayMidnight).inDays;
                       return Card(
@@ -164,10 +128,10 @@ class DashboardScreen extends StatelessWidget {
             ),
             const SizedBox(height: 8),
 
-            todaySessions.isEmpty
+            helper.todaySessions.isEmpty
                 ? const Text("No sessions today.")
                 : Column(
-                    children: todaySessions.map((s) {
+                    children: helper.todaySessions.map((s) {
                       return Card(
                         child: ListTile(
                           title: Text(s.title),
